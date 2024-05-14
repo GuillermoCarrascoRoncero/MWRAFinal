@@ -9,6 +9,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+var fs = require('fs');
+
+const wadlPath = path.join(__dirname, 'docs', 'api-description.wadl');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +27,20 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/logs', serveIndex(path.join(__dirname, 'public/logs'))); // shows you the file list
 app.use('/logs', express.static(path.join(__dirname, 'public/logs'))); // serve the actual files
+
+app.get('/wadl', (req, res) => {
+  // Lee el archivo WADL y envíalo como respuesta
+  fs.readFile(wadlPath, 'utf8', (err, data) => {
+      if (err) {
+          console.error('Error al leer el archivo WADL:', err);
+          return res.status(500).send('Error interno del servidor');
+      }
+      res.set('Content-Type', 'application/xml');
+      res.send(data);
+  });
+});
+
+
 
 //to include images
 // app.use('/images', express.static('images'));
